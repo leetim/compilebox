@@ -3,7 +3,7 @@ set -e
 
 to=$1
 shift
-
+echo docker run -d "$@"
 cont=$(docker run -d "$@")
 code=$(timeout "$to" docker wait "$cont" || true)
 docker kill $cont &> /dev/null
