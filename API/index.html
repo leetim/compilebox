@@ -46,25 +46,56 @@ h3{
         hello
     </textarea>
 
-
-
     <input type="button" value="Compile" id="send">
-<!-- output box -->
-  <p class="output" id="output">Output appears here</p><br>
-  <p class="output" id="errors">Errors appears here</p><br>
+    <p class="output" id="output">Output appears here</p><br>
+    <p class="output" id="errors">Errors appears here</p><br>
     <hr>
-    <h3>Tests</h3>
-    <input type="button" value="Test All Languages" id="testAll">
+<!-- Interface for uploading file -->
+    <input id ="fileupload" type="file" name="files[]" data-url="/upload" multiple>
+    <button id="file_submit">
+      Submit
+    </button><br>
 
-
-    <p id="testsoutput" class="output">Output of all tests appear here<br><br>
-    </p>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script type="text/javascript">
 
       //SHOW LANGUAGE CODES TO USER ON CLICKING HELP LINK
+
+      $('#file_submit').on('click', function(){
+        // console.log("Hi")
+        var files_container = $('#fileupload')[0];
+        var send_url = $('#fileupload').attr('data-url');
+        var fd = new FormData();
+
+        var langid = $('#langid').val();
+        var stdin = $('#stdin').val();
+        console.log(files_container);
+        console.log(send_url);
+
+        // fd.language = langid
+        // fd.stdin = stdin
+        fd.append("file", files_container.files[0]);
+        fd.append("language", langid);
+        fd.append("stdin", stdin);
+        console.log(fd);
+        $.ajax({
+            url: send_url,
+            type: "POST",
+            data: fd,
+            processData: false,
+            contentType: false,
+            timeout: 60000,
+            // dataType:'json',
+            // complete: function(data, error){console.log("done")},
+            success: function(data, error) {
+
+              console.log("Getted data status: " + data)
+              document.getElementById("output").innerHTML = data.output;
+              document.getElementById("errors").innerHTML = data.errors;
+            }
+        });
+      });
+
       $('#langhelp').on('click',function () {
       	var msg = "These are the languages and their langids: \n[LANGID]: [LANGUAGE]\n";
       	var langs = [];
@@ -75,6 +106,7 @@ h3{
 
       	alert(msg);
       });
+
 
 
       //COMPILE USER GIVEN CODE
@@ -92,12 +124,11 @@ h3{
 
           $.post("/compile", json, function(data, error, xhr) {
 
-            // console.log("Getted data status: " + data.code)
+            console.log("Getted data status: " + data.run_status)
             document.getElementById("output").innerHTML = data.output;
             document.getElementById("errors").innerHTML = data.errors;
           });
       });
-
 
       //RUN TESTS ON ALL LANGUAGES
       var langid_to_name = [];

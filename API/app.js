@@ -8,6 +8,7 @@
 
 var express = require('express');
 var arr = require('./compilers');
+var fs = require('fs');
 var sandBox = require('./DockerSandbox');
 var app = express.createServer();
 var port=80;
@@ -37,6 +38,47 @@ function random(size) {
     return require("crypto").randomBytes(size).toString('hex');
 }
 
+app.post('/upload', bruteforce.prevent, function(req, res){
+  // console.log(req.files.file.path);
+  // console.log(req.body.language);
+  // console.log(req.body.stdin);
+  // res.send({output:"success", run_status: 200});
+  // return 0;
+  var language = req.body.language;
+  var code = "";
+  var stdin = req.body.stdin;
+
+  var folder= 'temp/' + random(10); //folder in which the temporary folder will be saved
+  var path=__dirname+"/"; //current working path
+  var vm_name='virtual_machine'; //name of virtual machine that we want to execute
+  var timeout_value=20;//Timeout Value, In Seconds
+  var file_path = req.files.file.path;
+
+  //details of this are present in DockerSandbox.js
+  var sandboxType = new sandBox(
+    timeout_value,
+    path,
+    folder,
+    vm_name,
+    arr.compilerArray[language][0],
+    arr.compilerArray[language][1],
+    code,
+    arr.compilerArray[language][2],
+    arr.compilerArray[language][3],
+    arr.compilerArray[language][4],
+    stdin
+  );
+
+
+  //data will contain the output of the compiled/interpreted code
+  //the result maybe normal program output, list of error messages or a Timeout error
+  sandboxType.run_project(file_path, function(data,exec_time,err, status)
+  {
+    console.log("Data: received: "+ err);
+    res.send({output:data, langid: language,code:code, errors:err, time:exec_time, run_status: status});
+  });
+  // res.send(req.files.file.path);
+});
 
 app.post('/compile',bruteforce.prevent,function(req, res)
 {
@@ -68,10 +110,10 @@ app.post('/compile',bruteforce.prevent,function(req, res)
 
     //data will contain the output of the compiled/interpreted code
     //the result maybe normal program output, list of error messages or a Timeout error
-    sandboxType.run(function(data,exec_time,err)
+    sandboxType.run(function(data,exec_time,err, status)
     {
       console.log("Data: received: "+ err);
-    	res.send({output:data, langid: language,code:code, errors:err, time:exec_time, run_status: 0});
+    	res.send({output:data, langid: language,code:code, errors:err, time:exec_time, run_status: status});
     });
 
 });
