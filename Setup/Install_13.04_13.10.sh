@@ -24,6 +24,7 @@ echo "Setting up NodeJs"
 apt-get update
 apt-get install -y nodejs
 apt-get install -y npm
+npm install string-format
 
 #############################
 # Starting Docker
