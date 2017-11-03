@@ -5,7 +5,8 @@
   "dependencies": {
     "express": "2.5.11",
     "express-brute":"*",
-    "exports": "*"
+    "exports": "*",
+    "string-format": "*"
   },
   "author": "Osman Ali",
   "license": "MIT"

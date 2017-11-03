@@ -30,7 +30,6 @@ echo "Installing NodeJS"
 apt-get update
 apt-get install -y nodejs
 apt-get install -y npm
-npm install string-format
 
 chmod 777 ../API/DockerTimeout.sh
 chmod 777 ../API/Payload/script.sh
