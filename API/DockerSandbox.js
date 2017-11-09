@@ -7,6 +7,7 @@
 */
 
 var format = require('string-format')
+var git_download = require('github-download')
 
 /**
   * @Constructor
@@ -21,7 +22,15 @@ var format = require('string-format')
   * @param {String} code: The actual code
   * @param {String} output_command: Used in case of compilers only, to execute the object code, send " " in case of interpretors
 */
-var DockerSandbox = function(timeout_value,path,folder,vm_name,compiler_name,file_name,code,output_command,languageName,e_arguments,stdin_data){
+var DockerSandbox = function( timeout_value,
+                              path,folder,
+                              vm_name,
+                              compiler_name,
+                              file_name,code,
+                              output_command,
+                              languageName,
+                              e_arguments,
+                              stdin_data){
   this.timeout_value=timeout_value;
   this.path=path;
   this.folder=folder;
@@ -58,17 +67,25 @@ DockerSandbox.prototype.run_project = function(file_path, success){
   });
 }
 
+DockerSandbox.prototype.run_project_from_repo = function(file_path, success){
+  var sandbox = this;
 
-/*
-         * @function
-         * @name DockerSandbox.prepare
-         * @description Function that creates a directory with the folder name already provided through constructor
-         * and then copies contents of folder named Payload to the created folder, this newly created folder will be mounted
-         * on the Docker Container. A file with the name specified in file_name variable of this class is created and all the
-         * code written in 'code' variable of this class is copied into this file.
-         * Summary: This function produces a folder that contains the source file and 2 scripts, this folder is mounted to our
-         * Docker container when we run it.
-         * @param {Function pointer} success ?????
+  this.prepare_project_from_repo(file_path, function(){
+    sandbox.execute(success);
+  });
+}
+
+
+/**
+* @function
+* @name DockerSandbox.prepare
+* @description Function that creates a directory with the folder name already provided through constructor
+* and then copies contents of folder named Payload to the created folder, this newly created folder will be mounted
+* on the Docker Container. A file with the name specified in file_name variable of this class is created and all the
+* code written in 'code' variable of this class is copied into this file.
+* Summary: This function produces a folder that contains the source file and 2 scripts, this folder is mounted to our
+* Docker container when we run it.
+* @param {Function pointer} success ?????
 */
 DockerSandbox.prototype.prepare = function(success){
   var exec = require('child_process').exec;
@@ -108,6 +125,43 @@ DockerSandbox.prototype.prepare_project = function(file_path, success){
   exec(format("mkdir {0}{1} && cp {0}/Payload/* {0}{1} && cp {2} {0}{1}/arhcive.tgz && chmod 777 {0}{1}", this.path, this.folder, file_path), function(st){
     exec(format("{0}{1}/uncompress.sh {0}{1}/arhcive.tgz {0}{1}", sandbox.path, sandbox.folder), function(st2){
       console.log("Project was saved!" + st2);
+      fs.writeFile(format("{path}{folder}/inputFile", sandbox), sandbox.stdin_data, function(err){
+        if (err){
+          console.log(err);
+        }
+        else{
+          console.log("Input file was saved!");
+          success();
+        }
+      });
+    });
+  });
+}
+
+DockerSandbox.prototype.prepare_project_from_repo = function(git_repo_src, success){
+  var exec = require('child_process').exec;
+  var fs = require('fs');
+  var sandbox = this;
+  console.log(git_repo_src);
+  git_download(git_repo_src, format("{path}{folder}", this)).on('dir', function(dir) {
+    console.log(dir)
+  })
+  .on('file', function(file) {
+    console.log(file)
+  })
+  .on('zip', function(zipUrl) { //only emitted if Github API limit is reached and the zip file is downloaded
+    console.log(zipUrl)
+  })
+  .on('error', function(err) {
+    console.error(err)
+  })
+  .on('end', function() {
+    exec('tree', function(err, stdout, sderr) {
+      console.log(stdout)
+    })
+
+    exec(format("sudo chmod 777 {path}{folder} && cp {path}/Payload/* {path}{folder}", sandbox), function(st){
+      console.log("Project was saved!" + st);
       fs.writeFile(format("{path}{folder}/inputFile", sandbox), sandbox.stdin_data, function(err){
         if (err){
           console.log(err);
