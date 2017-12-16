@@ -2,6 +2,15 @@
 
 <head>
     <script src="langs.js"></script><!-- installing script creating codes and creating templates for intial page  -->
+    <script>
+      function load_some(){
+        $("selecter-lang").append($('<option>', {value: 1, text: 'val'}));
+        var select = document.getElementById('selecter-lang')
+        for (var i in LANGS){
+          select.options[select.options.length] = new Option(i, LANGS[i][0])
+      	}
+      }
+    </script>
 </head>
 
 <style type="text/css">
@@ -27,14 +36,16 @@ h3{
 }
 </style>
 
-<body>
+<body onload="load_some()">
 	<p>
 		This is an example client to demo the sandboxed compiling.
 	</p>
 	<h3>Code Compile</h3>
 <!-- getiing the id of the language -->
     <label>Language ID <a href="#" id="langhelp">(list)</a>:</label>
-    <input type='text' id="langid" value=0>
+    <select id="selecter-lang">
+    </select>
+    <!-- <input type='text' id="langid" value=0> -->
     <br>
     <label>Code:</label>
     <textarea id="code">print 'Hello!'</textarea>
@@ -79,7 +90,7 @@ h3{
         var send_url = $('#fileupload').attr('data-url');
         var fd = new FormData();
 
-        var langid = $('#langid').val();
+        var langid = $('#selecter-lang').val();
         var stdin = $('#stdin').val();
         console.log(files_container);
         console.log(send_url);
@@ -123,7 +134,7 @@ h3{
 
       //COMPILE USER GIVEN CODE
       $('#send').on('click', function() {
-          var langid = $('#langid').val();
+          var langid = $('#selecter-lang').val();
           var codeF = $('#code').val();
           var stdin = $('#stdin').val();
   // passing the json file to the page
@@ -135,7 +146,6 @@ h3{
           console.log(json);
 
           $.post("/compile", json, function(data, error, xhr) {
-
             console.log("Getted data status: " + data.run_status)
             document.getElementById("output").innerHTML = data.output;
             document.getElementById("errors").innerHTML = data.errors;
@@ -143,7 +153,7 @@ h3{
       });
 
       $('#compile-from-repo').on('click', function(){
-        var langid = $('#langid').val();
+        var langid = $('#selecter-lang').val();
         var repos = $('#git-repo-src').val();
         var stdins = $('#stdin').val();
         var file_names = $('#run-file').val();

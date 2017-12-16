@@ -1,16 +1,16 @@
 
 var LANGS = {
+  "Python": [0, "text/x-python"],
+  "Ruby": [1, "text/x-ruby"],
+  "Clojure": [2, "text/x-clojure"],
+  "PHP": [3, "text/x-php"],
+  "Plain JavaScript": [4, "text/javascript"],
+  "Scala": [5, "text/x-scala"],
+  "Go": [6, "text/x-go"],
+  "C/C++": [7, "text/x-c++src"],
+  "Java": [8, "text/x-java"],
+  "VB.NET": [9, "text/x-vb"],
     "C#": [10, "text/x-csharp"],
-    "C/C++": [7, "text/x-c++src"],
-    "Clojure": [2, "text/x-clojure"],
-    "Java": [8, "text/x-java"],
-    "Go": [6, "text/x-go"],
-    "Plain JavaScript": [4, "text/javascript"],
-    "PHP": [3, "text/x-php"],
-    "Python": [0, "text/x-python"],
-    "Ruby": [1, "text/x-ruby"],
-    "Scala": [5, "text/x-scala"],
-    "VB.NET": [9, "text/x-vb"],
     "Bash": [11, "text/x-bash"],
     "Objective-C": [12,"text/x-objectivec"],
     "MySQL": [13,"text/x-sql"],
@@ -38,4 +38,3 @@ var Codes = {
     "VB.NET": "Imports System\n\nPublic Class Test\n\tPublic Shared Sub Main() \n    \tSystem.Console.WriteLine(\"Hello\")\n\tEnd Sub\nEnd Class",
     "Rust": "fn main() {\n\tprintln!(\"Hello\");\n}",
 }
-
